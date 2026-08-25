@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Ficha Hipertrofia</title>
+<meta name="theme-color" content="#111113" />
+<style>
+  :root {
+    --bg:#111113; --surface:#1B1C1F; --surfaceAlt:#232427; --line:#2E2F33;
+    --chalk:#EDEAE0; --muted:#8B8D93; --red:#E8402C; --amber:#F2A93B; --green:#4CAF6E;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin:0; background:var(--bg); color:var(--chalk);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+  input[type=number] { -moz-appearance:textfield; }
+  .wrap { max-width: 440px; margin: 0 auto; padding: 24px 16px 48px; }
+  .kicker { color: var(--red); font-size: 12px; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; margin-bottom: 4px; }
+  h1 { font-size: 30px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; line-height: 1; margin: 0 0 16px; }
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 16px; }
+  .day-btn { padding: 8px 2px; border-radius: 6px; font-weight: 900; text-transform: uppercase; font-size: 10px;
+    background: var(--surface); color: var(--chalk); border: 1px solid var(--line); cursor: pointer; }
+  .day-btn.active { background: var(--red); color: var(--bg); border-color: var(--red); }
+  .day-btn.rest-day:not(.active) { color: var(--muted); }
+  .day-title { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
+  .day-title .sub { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .15em; }
+  .day-title .main { font-weight: 900; font-size: 18px; text-transform: uppercase; letter-spacing: -0.01em; }
+  .guide-toggle { width: 100%; text-align: left; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .05em; color: var(--amber); border: 1px solid var(--line); background: var(--surface);
+    cursor: pointer; margin-bottom: 16px; }
+  .guide-panel { background: var(--surface); border: 1px solid var(--line); color: var(--muted); border-radius: 8px;
+    padding: 12px 16px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; display: none; }
+  .guide-panel.open { display: block; }
+  .guide-panel b { color: var(--chalk); }
+  .guide-panel p { margin: 0 0 8px; }
+  .guide-panel p:last-child { margin-bottom: 0; }
+  .rest-msg { color: var(--muted); font-size: 14px; text-align: center; padding: 64px 0; }
+  .group-label { color: var(--amber); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .1em; margin: 0 0 8px; }
+  .block { margin-bottom: 20px; }
+  .ex-card { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px; margin-bottom: 8px; }
+  .ex-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .ex-name { font-weight: 700; font-size: 14px; line-height: 1.25; }
+  .ex-target { color: var(--muted); font-family: monospace; font-size: 12px; white-space: nowrap; padding-top: 2px; }
+  .ex-meta { color: var(--muted); font-size: 11px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .type-badge { background: var(--surfaceAlt); border: 1px solid var(--line); padding: 2px 6px; border-radius: 4px;
+    text-transform: uppercase; letter-spacing: .05em; font-size: 10px; }
+  .suggestion { font-family: monospace; font-size: 11px; margin-bottom: 8px; }
+  .suggestion.green { color: var(--green); }
+  .suggestion.amber { color: var(--amber); }
+  .inputs-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .field-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .1em; flex-shrink: 0; }
+  .load-input { width: 60px; border-radius: 6px; padding: 6px 8px; font-size: 14px; font-family: monospace; text-align: center;
+    background: var(--surfaceAlt); border: 1px solid var(--line); color: var(--chalk); }
+  .reps-group { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .rep-input { width: 38px; border-radius: 6px; padding: 6px 2px; font-size: 14px; font-family: monospace; text-align: center;
+    background: var(--surfaceAlt); border: 1px solid var(--line); color: var(--chalk); }
+  .register-btn { width: 100%; padding: 8px; border-radius: 6px; font-weight: 900; font-size: 12px; text-transform: uppercase;
+    letter-spacing: .05em; background: var(--red); color: var(--bg); border: none; cursor: pointer; }
+  .register-btn.flash { background: var(--green); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Ficha de treino</div>
+  <h1>Hipertrofia</h1>
+  <div class="days" id="days"></div>
+  <div class="day-title">
+    <div class="sub" id="dayLabel"></div>
+    <div class="main" id="dayTitle"></div>
+  </div>
+  <button class="guide-toggle" id="guideToggle">▸ Como usar a progressão dupla</button>
+  <div class="guide-panel" id="guidePanel">
+    <p><b>Progressão dupla</b> — ex. 3×8–12: treino 1 faça 10/9/8, treino 2 faça 11/10/9, treino 3 faça 12/12/11, treino 4 faça 12/12/12 e então suba a carga. Depois de subir, volte pro início da faixa e repita.</p>
+    <p><b>Descanso</b> — compostos 2–3 min · isoladores 60–90 s · superséries de braço 60–90 s após o par.</p>
+    <p><b>Intensidade</b> — mantenha 1–3 reps na reserva (RIR), aproximando-se mais da falha nas últimas séries dos isoladores.</p>
+  </div>
+  <div id="content"></div>
+</div>
+
+<script>
+const REST_LABEL = { composto: "2–3 min", isolador: "60–90 s", superserie: "60–90 s após o par" };
+const TYPE_LABEL = { composto: "Composto", isolador: "Isolador", superserie: "Superserie" };
+
+const WEEK = {
+  seg: { label: "Segunda", title: "Peito + Tríceps + Trapézio", rest: false, blocks: [
+    { group: "Peito", exercises: [
+      { id: "seg-1", name: "Supino inclinado na máquina unilateral", sets: 3, range: [6, 10], type: "composto" },
+      { id: "seg-2", name: "Supino reto na máquina unilateral", sets: 3, range: [8, 12], type: "composto" },
+      { id: "seg-3", name: "Crucifixo na máquina", sets: 3, range: [10, 15], type: "isolador" },
+    ]},
+    { group: "Tríceps", exercises: [
+      { id: "seg-4", name: "Tríceps na polia com corda", sets: 3, range: [8, 12], type: "isolador" },
+      { id: "seg-5", name: "Tríceps na polia com barra, pegada invertida", sets: 3, range: [10, 15], type: "isolador" },
+      { id: "seg-6", name: "Tríceps na polia com barra", sets: 2, range: [10, 15], type: "isolador" },
+    ]},
+    { group: "Trapézio", exercises: [
+      { id: "seg-7", name: "Encolhimento com halteres/anilhas", sets: 3, range: [10, 15], type: "isolador" },
+    ]},
+  ]},
+  ter: { label: "Terça", title: "Pernas A — ênfase quadríceps", rest: false, blocks: [
+    { group: null, exercises: [
+      { id: "ter-1", name: "Leg Press 45° + Panturrilha", sets: 4, range: [8, 12], type: "composto" },
+      { id: "ter-2", name: "Agachamento no Rack", sets: 3, range: [6, 10], type: "composto" },
+      { id: "ter-3", name: "Cadeira Extensora", sets: 3, range: [10, 15], type: "isolador" },
+      { id: "ter-4", name: "Cadeira Abdutora", sets: 3, range: [12, 20], type: "isolador" },
+      { id: "ter-5", name: "Flexão de Perna em Pé", sets: 3, range: [10, 15], type: "isolador" },
+      { id: "ter-6", name: "Panturrilha", sets: 4, range: [10, 15], type: "isolador" },
+    ]},
+  ]},
+  qua: { label: "Quarta", title: "Costas + Bíceps", rest: false, blocks: [
+    { group: "Costas", exercises: [
+      { id: "qua-1", name: "Puxador Frontal", sets: 4, range: [6, 10], type: "composto" },
+      { id: "qua-2", name: "Remada Baixa", sets: 4, range: [8, 12], type: "composto" },
+      { id: "qua-3", name: "Pullover na Polia", sets: 3, range: [10, 15], type: "isolador" },
+    ]},
+    { group: "Bíceps", exercises: [
+      { id: "qua-4", name: "Rosca Alternada com Halteres", sets: 3, range: [8, 12], type: "isolador" },
+      { id: "qua-5", name: "Rosca Martelo com Halteres", sets: 3, range: [8, 12], type: "isolador" },
+      { id: "qua-6", name: "Rosca Scott na Máquina", sets: 3, range: [10, 15], type: "isolador" },
+      { id: "qua-7", name: "Rosca na Polia, Pegada Pronada", sets: 2, range: [12, 15], type: "isolador" },
+    ]},
+  ]},
+  qui: { label: "Quinta", title: "Descanso", rest: true, blocks: [] },
+  sex: { label: "Sexta", title: "Peito + Ombros + Braços", rest: false, blocks: [
+    { group: "Peito", exercises: [
+      { id: "sex-1", name: "Supino inclinado na máquina unilateral", sets: 3, range: [8, 12], type: "composto" },
+      { id: "sex-2", name: "Supino reto na máquina unilateral", sets: 3, range: [10, 12], type: "composto" },
+      { id: "sex-3", name: "Crucifixo na máquina", sets: 2, range: [12, 15], type: "isolador" },
+    ]},
+    { group: "Ombros", exercises: [
+      { id: "sex-4", name: "Elevação lateral com halteres", sets: 3, range: [10, 15], type: "isolador" },
+      { id: "sex-5", name: "Elevação posterior/reversa", sets: 3, range: [12, 15], type: "isolador" },
+    ]},
+    { group: "Tríceps + Bíceps", exercises: [
+      { id: "sex-6", name: "Tríceps na polia com barra + Rosca na polia com corda", sets: 3, range: [8, 12], type: "superserie" },
+      { id: "sex-7", name: "Rosca na polia com barra + Tríceps na polia com corda", sets: 3, range: [10, 15], type: "superserie" },
+      { id: "sex-8", name: "Rosca na polia, pegada pronada", sets: 2, range: [12, 15], type: "isolador" },
+    ]},
+  ]},
+  sab: { label: "Sábado", title: "Pernas B — ênfase posterior + glúteos", rest: false, blocks: [
+    { group: null, exercises: [
+      { id: "sab-1", name: "Stiff com barra", sets: 4, range: [6, 10], type: "composto" },
+      { id: "sab-2", name: "Mesa flexora", sets: 4, range: [8, 12], type: "composto" },
+      { id: "sab-3", name: "Cadeira flexora", sets: 3, range: [10, 15], type: "isolador" },
+      { id: "sab-4", name: "Leg Press 45°", sets: 3, range: [10, 12], type: "composto" },
+      { id: "sab-5", name: "Cadeira abdutora", sets: 3, range: [12, 20], type: "isolador" },
+      { id: "sab-6", name: "Panturrilha", sets: 4, range: [10, 15], type: "isolador" },
+    ]},
+  ]},
+  dom: { label: "Domingo", title: "Descanso", rest: true, blocks: [] },
+};
+
+const DAY_ORDER = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"];
+const JS_DAY_TO_KEY = { 0: "dom", 1: "seg", 2: "ter", 3: "qua", 4: "qui", 5: "sex", 6: "sab" };
+const STORAGE_KEY = "ficha-hipertrofia-v1";
+
+let data = {};
+try { data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch (e) { data = {}; }
+let activeDay = JS_DAY_TO_KEY[new Date().getDay()];
+
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+}
+function getEntry(id, sets) {
+  if (!data[id]) data[id] = { load: "", reps: Array(sets).fill(""), history: [] };
+  return data[id];
+}
+function suggestion(entry, range) {
+  if (!entry.history.length) return null;
+  const last = entry.history[entry.history.length - 1];
+  const nums = last.reps.map(Number);
+  const allAtTop = nums.every((n) => n >= range[1]);
+  if (allAtTop) return { text: "todas as séries no topo — suba a carga hoje", tone: "green" };
+  return { text: "última vez: " + last.load + "kg · " + last.reps.join("/") + " reps — supere isso", tone: "amber" };
+}
+
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  if (attrs) for (const k in attrs) {
+    if (k === "class") e.className = attrs[k];
+    else if (k === "text") e.textContent = attrs[k];
+    else e.setAttribute(k, attrs[k]);
+  }
+  (children || []).forEach((c) => c && e.appendChild(c));
+  return e;
+}
+
+function renderDays() {
+  const daysEl = document.getElementById("days");
+  daysEl.innerHTML = "";
+  DAY_ORDER.forEach((k) => {
+    const btn = document.createElement("button");
+    btn.textContent = WEEK[k].label.slice(0, 3);
+    btn.className = "day-btn" + (k === activeDay ? " active" : "") + (WEEK[k].rest ? " rest-day" : "");
+    btn.onclick = () => { activeDay = k; render(); };
+    daysEl.appendChild(btn);
+  });
+}
+
+function renderExerciseCard(ex) {
+  const entry = getEntry(ex.id, ex.sets);
+  const sug = suggestion(entry, ex.range);
+
+  const card = el("div", { class: "ex-card" });
+  card.appendChild(el("div", { class: "ex-head" }, [
+    el("div", { class: "ex-name", text: ex.name }),
+    el("div", { class: "ex-target", text: ex.sets + "×" + ex.range[0] + "–" + ex.range[1] }),
+  ]));
+  card.appendChild(el("div", { class: "ex-meta" }, [
+    el("span", { class: "type-badge", text: TYPE_LABEL[ex.type] }),
+    el("span", { text: "descanso " + REST_LABEL[ex.type] }),
+  ]));
+  if (sug) {
+    card.appendChild(el("div", { class: "suggestion " + sug.tone, text: (sug.tone === "green" ? "▲ " : "→ ") + sug.text }));
+  }
+
+  const row = el("div", { class: "inputs-row" });
+  row.appendChild(el("span", { class: "field-label", text: "Carga" }));
+  const loadInput = el("input", { class: "load-input", type: "number", inputmode: "decimal", placeholder: "kg" });
+  loadInput.value = entry.load;
+  loadInput.addEventListener("input", (e) => { entry.load = e.target.value; persist(); });
+  row.appendChild(loadInput);
+
+  const repsGroup = el("div", { class: "reps-group" });
+  entry.reps.forEach((r, idx) => {
+    const repInput = el("input", { class: "rep-input", type: "number", inputmode: "numeric", placeholder: "s" + (idx + 1) });
+    repInput.value = r;
+    repInput.addEventListener("input", (e) => { entry.reps[idx] = e.target.value; persist(); });
+    repsGroup.appendChild(repInput);
+  });
+  row.appendChild(repsGroup);
+  card.appendChild(row);
+
+  const btn = el("button", { class: "register-btn", text: "Registrar hoje" });
+  btn.onclick = () => {
+    if (!entry.load || entry.reps.some((r) => r === "")) return;
+    entry.history.push({ date: new Date().toISOString(), load: entry.load, reps: [...entry.reps] });
+    persist();
+    btn.textContent = "Registrado ✓";
+    btn.classList.add("flash");
+    setTimeout(() => { btn.textContent = "Registrar hoje"; btn.classList.remove("flash"); }, 1600);
+    renderContent();
+  };
+  card.appendChild(btn);
+
+  return card;
+}
+
+function renderContent() {
+  const day = WEEK[activeDay];
+  document.getElementById("dayLabel").textContent = day.label + "-feira";
+  document.getElementById("dayTitle").textContent = day.title;
+
+  const content = document.getElementById("content");
+  content.innerHTML = "";
+
+  if (day.rest) {
+    content.appendChild(el("div", { class: "rest-msg", text: "😴 Descanso — recuperação muscular." }));
+    return;
+  }
+
+  day.blocks.forEach((block) => {
+    const blockEl = el("div", { class: "block" });
+    if (block.group) blockEl.appendChild(el("div", { class: "group-label", text: block.group }));
+    block.exercises.forEach((ex) => blockEl.appendChild(renderExerciseCard(ex)));
+    content.appendChild(blockEl);
+  });
+}
+
+function render() {
+  renderDays();
+  renderContent();
+}
+
+document.getElementById("guideToggle").onclick = () => {
+  const panel = document.getElementById("guidePanel");
+  const open = panel.classList.toggle("open");
+  document.getElementById("guideToggle").textContent = (open ? "▾" : "▸") + " Como usar a progressão dupla";
+};
+
+render();
+</script>
+</body>
+</html>
